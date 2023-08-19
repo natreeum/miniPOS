@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini POS</title>
+  </head>
+  <body>
+    <div>
+      <input type="text" id="item_name" placeholder="이름" />
+      <input type="number" id="item_price" placeholder="가격" />
+      <button id="btn_addItem">추가</button>
+    </div>
+    <br />
+    <div>Items</div>
+    <div id="items"></div>
+    <br />
+    <div>
+      <button id="calc_btn">계산</button>
+      <span id="price">0 KRW</span>
+      <br />
+      <button id="paid_btn">결제 완료</button>
+    </div>
+    <br />
+    <div>Sold</div>
+    <div id="sold"></div>
+    <br />
+    <br />
+    <br />
+    <button id="salelog_btn">판매기록보기</button>
+    <button id="hidesalelog_btn">판매기록가리기</button>
+    <ul id="salelog"></ul>
+    <br />
+    <br />
+    <button id="init_btn">초기화</button>
+    <script>
+      const div_items = document.querySelector("#items");
+      const div_sold = document.querySelector("#sold");
+      setItems();
+      setSold();
+      /*
+        itemList Ex
+        [{
+          name : 'name',
+          price : 0,
+          sold : 0
+        }, ...]
+      */
+
+      // add item button
+      const addItemBtn = document.querySelector("#btn_addItem");
+      addItemBtn.addEventListener("click", () => {
+        const newItemName = document.querySelector("#item_name").value;
+        const newItemPrice = Number(
+          document.querySelector("#item_price").value
+        );
+        if (newItemName.length === 0 || newItemPrice === 0) return;
+
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        itemList.push({ name: newItemName, price: newItemPrice, sold: 0 });
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
+        setItems();
+        setSold();
+      });
+
+      // calc button
+      const calcBtn = document.querySelector("#calc_btn");
+      calcBtn.addEventListener("click", () => {
+        const itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        const items = document.querySelector("#items");
+        let priceSum = 0;
+        items.childNodes.forEach((e) => {
+          const amount = Number(e.childNodes[1].value);
+          const name = e.childNodes[2].innerHTML;
+          const itemPrice = itemList.filter((e) => e.name === name)[0].price;
+
+          priceSum += amount * itemPrice;
+        });
+        document.querySelector("#price").innerHTML = `${priceSum} KRW`;
+      });
+
+      // paid Button
+      const paidBtn = document.querySelector("#paid_btn");
+      paidBtn.addEventListener("click", () => {
+        const items = document.querySelector("#items");
+        const price = document.querySelector("#price");
+        const sold = document.querySelector("#sold");
+
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+
+        const saleData = {};
+
+        const childs = items.childNodes;
+        for (let i of childs) {
+          const amount = Number(i.childNodes[1].value);
+          const name = i.childNodes[2].innerHTML;
+          saleData[name] = amount;
+          if (amount === 0) continue;
+          for (let j of itemList) {
+            if (j.name === name) j.sold += amount;
+          }
+        }
+
+        document.querySelector("#price").innerHTML = `0 KRW`;
+
+        let saleLog = JSON.parse(window.localStorage.getItem("saleLog"));
+        if (!saleLog) saleLog = [];
+        if (
+          Object.keys(saleData).length !== 0 &&
+          Object.values(saleData).reduce((acc, e) => acc + e, 0) !== 0
+        )
+          saleLog.push(saleData);
+        window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
+
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
+        setItems();
+        setSold();
+      });
+
+      // init button
+      const init_btn = document.querySelector("#init_btn");
+      init_btn.addEventListener("click", () => {
+        window.localStorage.setItem("itemList", "[]");
+        window.localStorage.setItem("saleLog", "[]");
+        setItems();
+        setSold();
+      });
+
+      // sale Log Button
+      const salelog_btn = document.querySelector("#salelog_btn");
+      salelog_btn.addEventListener("click", () => {
+        emptyLogList();
+        const logUl = document.querySelector("#salelog");
+        const log = JSON.parse(window.localStorage.getItem("saleLog"));
+        log.forEach((e) => {
+          const newLi = document.createElement("li");
+          newLi.innerHTML = JSON.stringify(e);
+          logUl.appendChild(newLi);
+        });
+      });
+
+      // hide log button
+      const hidesalelog_btn = document.querySelector("#hidesalelog_btn");
+      hidesalelog_btn.addEventListener("click", () => {
+        emptyLogList();
+      });
+
+      function setItems() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        while (div_items.firstChild) {
+          div_items.removeChild(div_items.firstChild);
+        }
+
+        // append childs
+        itemList.forEach((e) => {
+          const tmpDiv = document.createElement("div");
+
+          const idSpan = document.createElement("span");
+          idSpan.innerHTML = `[${itemList.indexOf(e)}]`;
+
+          const numberInput = document.createElement("input");
+          numberInput.setAttribute("type", "number");
+          numberInput.setAttribute("value", 0);
+          numberInput.setAttribute("id", itemList.indexOf(e));
+
+          const nameSpan = document.createElement("span");
+          nameSpan.innerHTML = `${e.name}`;
+
+          const priceSpan = document.createElement("span");
+          priceSpan.innerHTML = `(${e.price}KRW)`;
+
+          tmpDiv.appendChild(idSpan);
+          tmpDiv.appendChild(numberInput);
+          tmpDiv.appendChild(nameSpan);
+          tmpDiv.appendChild(priceSpan);
+          div_items.appendChild(tmpDiv);
+        });
+      }
+
+      function setSold() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+
+        while (div_sold.firstChild) {
+          div_sold.removeChild(div_sold.firstChild);
+        }
+
+        itemList.forEach((e) => {
+          const newDiv = document.createElement("div");
+          newDiv.innerHTML = `${e.name} : ${e.sold}`;
+
+          div_sold.appendChild(newDiv);
+        });
+      }
+
+      function emptyLogList() {
+        const logUl = document.querySelector("#salelog");
+        while (logUl.firstChild) {
+          logUl.removeChild(logUl.firstChild);
+        }
+      }
+    </script>
+  </body>
+</html>
