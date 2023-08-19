@@ -133,7 +133,7 @@
         emptyLogList();
         const logUl = document.querySelector("#salelog");
         const log = JSON.parse(window.localStorage.getItem("saleLog"));
-        log.forEach((e) => {
+        log.reverse().forEach((e) => {
           const newLi = document.createElement("li");
           newLi.innerHTML = JSON.stringify(e);
           logUl.appendChild(newLi);
