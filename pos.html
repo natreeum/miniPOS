@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mini POS</title>
+    <style>
+      .section-title {
+        text-align: center;
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        padding: 5px;
+      }
+    </style>
   </head>
   <body>
     <div>
@@ -16,7 +24,7 @@
       <button id="btn_delItem">삭제</button>
     </div>
     <br />
-    <div>Items</div>
+    <div class="section-title">Items</div>
     <div id="items"></div>
     <br />
     <div>
@@ -26,9 +34,15 @@
       <button id="paid_btn">결제 완료</button>
     </div>
     <br />
-    <div>Sold</div>
+    <div class="section-title">Sold</div>
     <div id="sold"></div>
     <br />
+    <div class="section-title">품목당 판매된 금액</div>
+    <div id="total_sales_per_item"></div>
+    <br />
+    <br />
+    <div class="section-title">총 판매금액</div>
+    <div id="total_sales">0 KRW</div>
     <br />
     <br />
     <button id="salelog_btn">판매기록보기</button>
@@ -40,8 +54,12 @@
     <script>
       const div_items = document.querySelector("#items");
       const div_sold = document.querySelector("#sold");
+      const div_total_sales = document.querySelector("#total_sales");
+      const div_total_sales_per_item = document.querySelector("#total_sales_per_item");
       setItems();
       setSold();
+      setTotalSales();
+      setTotalSalesPerItem();
       /*
         itemList Ex
         [{
@@ -89,7 +107,6 @@
       paidBtn.addEventListener("click", () => {
         const items = document.querySelector("#items");
         const price = document.querySelector("#price");
-        const sold = document.querySelector("#sold");
 
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
         if (!itemList) itemList = [];
@@ -100,12 +117,17 @@
         for (let i of childs) {
           const amount = Number(i.childNodes[1].value);
           const name = i.childNodes[2].innerHTML;
-          saleData[name] = amount;
           if (amount === 0) continue;
-          for (let j of itemList) {
-            if (j.name === name) j.sold += amount;
-          }
+          const itemData = itemList.filter((e) => e.name === name)[0];
+          saleData[name] = {
+            price: itemData.price,
+            count: amount
+          };
+
+          itemData.sold += amount;
         }
+
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
 
         document.querySelector("#price").innerHTML = `0 KRW`;
 
@@ -114,13 +136,15 @@
         if (
           Object.keys(saleData).length !== 0 &&
           Object.values(saleData).reduce((acc, e) => acc + e, 0) !== 0
-        )
+        ){
           saleLog.push(saleData);
-        window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
+          window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
+        }
 
-        window.localStorage.setItem("itemList", JSON.stringify(itemList));
         setItems();
         setSold();
+        setTotalSales();
+        setTotalSalesPerItem();
       });
 
       // init button
@@ -130,6 +154,9 @@
         window.localStorage.setItem("saleLog", "[]");
         setItems();
         setSold();
+        setTotalSales();
+        setTotalSalesPerItem();
+        emptyLogList();
       });
 
       // sale Log Button
@@ -140,7 +167,7 @@
         const log = JSON.parse(window.localStorage.getItem("saleLog"));
         log.reverse().forEach((e) => {
           const newLi = document.createElement("li");
-          newLi.innerHTML = JSON.stringify(e);
+          newLi.innerHTML = formatLogEntry(e);
           logUl.appendChild(newLi);
         });
       });
@@ -211,6 +238,47 @@
           div_sold.appendChild(newDiv);
         });
       }
+
+      function setTotalSales() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        let totalSales = 0;
+        itemList.forEach((e) => {
+          totalSales += e.price * e.sold;
+        });
+        div_total_sales.innerHTML = `${totalSales} KRW`;
+      }
+
+      function setTotalSalesPerItem() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        while (div_total_sales_per_item.firstChild) {
+          div_total_sales_per_item.removeChild(div_total_sales_per_item.firstChild);
+        }
+        itemList.forEach((e) => {
+          const newDiv = document.createElement("div");
+          newDiv.innerHTML = `${e.name} : ${(e.price * e.sold)} KRW`;
+          div_total_sales_per_item.appendChild(newDiv);
+        });
+      }
+
+      function formatLogEntry(entry) {
+      let entryString = '';
+      const timeOfSale = new Date().toLocaleString();
+      entryString += `${timeOfSale} | `;
+
+      let totalSalePrice = 0;
+      for (const item in entry) {
+        if (entry[item] !== 0) {
+          const price = entry[item].price * entry[item].count;
+          totalSalePrice += price;
+          entryString += `${item} * ${entry[item].count} (${price} KRW) | `;
+        }
+      }
+
+      entryString += `${totalSalePrice} KRW`;
+      return entryString;
+    }
 
       function emptyLogList() {
         const logUl = document.querySelector("#salelog");
