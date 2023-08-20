@@ -11,6 +11,10 @@
       <input type="number" id="item_price" placeholder="가격" />
       <button id="btn_addItem">추가</button>
     </div>
+    <div>
+      <input type="text" id="item_num" placeholder="아이템 번호(기본 : 0)" />
+      <button id="btn_delItem">삭제</button>
+    </div>
     <br />
     <div>Items</div>
     <div id="items"></div>
@@ -145,6 +149,18 @@
       const hidesalelog_btn = document.querySelector("#hidesalelog_btn");
       hidesalelog_btn.addEventListener("click", () => {
         emptyLogList();
+      });
+
+      // del Item Button
+      const btn_delItem = document.querySelector("#btn_delItem");
+      btn_delItem.addEventListener("click", () => {
+        const itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        const itemNum = Number(document.querySelector("#item_num").value);
+        if (!itemList || !itemList[itemNum]) return;
+        itemList.splice(itemNum, 1);
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
+        setItems();
+        setSold();
       });
 
       function setItems() {
