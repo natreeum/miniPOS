@@ -226,16 +226,6 @@
         div_total_sales.innerHTML = `${totalSales} KRW`;
       }
 
-      function setTotalSales() {
-        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
-        if (!itemList) itemList = [];
-        let totalSales = 0;
-        itemList.forEach((e) => {
-          totalSales += e.price * e.sold;
-        });
-        div_total_sales.innerHTML = `${totalSales} KRW`;
-      }
-
       function setTotalSalesPerItem() {
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
         if (!itemList) itemList = [];
