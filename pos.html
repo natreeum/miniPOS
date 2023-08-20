@@ -57,6 +57,7 @@
         if (newItemName.length === 0 || newItemPrice === 0) return;
 
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
         itemList.push({ name: newItemName, price: newItemPrice, sold: 0 });
         window.localStorage.setItem("itemList", JSON.stringify(itemList));
         setItems();
