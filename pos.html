@@ -163,8 +163,11 @@
             price: itemData.price,
             count: amount
           };
+          let updatedItem = itemList.find((e) => e.name === name);
+          updatedItem.sold += amount;
         }
 
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
         document.querySelector("#price").innerHTML = `0 KRW`;
 
         let saleLog = JSON.parse(window.localStorage.getItem("saleLog"));
