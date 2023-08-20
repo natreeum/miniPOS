@@ -143,11 +143,15 @@
       paidBtn.addEventListener("click", () => {
         const items = document.querySelector("#items");
         const price = document.querySelector("#price");
+        const sold = document.querySelector("#sold");
 
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
         if (!itemList) itemList = [];
 
-        const saleData = {};
+        const saleData = {
+          items: {},
+          timestamp: new Date().toLocaleString()
+        };
 
         const childs = items.childNodes;
         for (let i of childs) {
@@ -155,28 +159,23 @@
           const name = i.childNodes[2].innerHTML;
           if (amount === 0) continue;
           const itemData = itemList.filter((e) => e.name === name)[0];
-          saleData[name] = {
+          saleData.items[name] = {
             price: itemData.price,
             count: amount
           };
-
-          itemData.sold += amount;
         }
-
-        window.localStorage.setItem("itemList", JSON.stringify(itemList));
 
         document.querySelector("#price").innerHTML = `0 KRW`;
 
         let saleLog = JSON.parse(window.localStorage.getItem("saleLog"));
         if (!saleLog) saleLog = [];
         if (
-          Object.keys(saleData).length !== 0 &&
-          Object.values(saleData).reduce((acc, e) => acc + e, 0) !== 0
-        ){
+          Object.keys(saleData.items).length !== 0 &&
+          Object.values(saleData.items).reduce((acc, e) => acc + e, 0) !== 0
+        ) {
           saleLog.push(saleData);
           window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
         }
-
         setItems();
         setSold();
         setTotalSales();
@@ -299,22 +298,22 @@
       }
 
       function formatLogEntry(entry) {
-      let entryString = '';
-      const timeOfSale = new Date().toLocaleString();
-      entryString += `${timeOfSale} | `;
+        let entryString = '';
+        const timeOfSale = entry.timestamp;
+        entryString += `${timeOfSale} | `;
 
-      let totalSalePrice = 0;
-      for (const item in entry) {
-        if (entry[item] !== 0) {
-          const price = entry[item].price * entry[item].count;
-          totalSalePrice += price;
-          entryString += `${item} * ${entry[item].count} (${price} KRW) | `;
+        let totalSalePrice = 0;
+        for (const item in entry.items) {
+          if (entry.items[item] !== 0) {
+            const price = entry.items[item].price * entry.items[item].count;
+            totalSalePrice += price;
+            entryString += `${item} * ${entry.items[item].count} (${price} KRW) | `;
+          }
         }
-      }
 
-      entryString += `${totalSalePrice} KRW`;
-      return entryString;
-    }
+        entryString += `${totalSalePrice} KRW`;
+        return entryString;
+      }
 
       function emptyLogList() {
         const logUl = document.querySelector("#salelog");
