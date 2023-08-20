@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mini POS</title>
+    <style>
+      .section-title {
+        text-align: center;
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        padding: 5px;
+      }
+    </style>
   </head>
   <body>
     <div>
@@ -12,7 +20,7 @@
       <button id="btn_addItem">추가</button>
     </div>
     <br />
-    <div>Items</div>
+    <div class="section-title">Items</div>
     <div id="items"></div>
     <br />
     <div>
@@ -22,9 +30,15 @@
       <button id="paid_btn">결제 완료</button>
     </div>
     <br />
-    <div>Sold</div>
+    <div class="section-title">Sold</div>
     <div id="sold"></div>
     <br />
+    <div class="section-title">품목당 판매된 금액</div>
+    <div id="total_sales_per_item"></div>
+    <br />
+    <br />
+    <div class="section-title">총 판매금액</div>
+    <div id="total_sales">0 KRW</div>
     <br />
     <br />
     <button id="salelog_btn">판매기록보기</button>
@@ -36,8 +50,12 @@
     <script>
       const div_items = document.querySelector("#items");
       const div_sold = document.querySelector("#sold");
+      const div_total_sales = document.querySelector("#total_sales");
+      const div_total_sales_per_item = document.querySelector("#total_sales_per_item");
       setItems();
       setSold();
+      setTotalSales();
+      setTotalSalesPerItem();
       /*
         itemList Ex
         [{
@@ -117,6 +135,8 @@
         window.localStorage.setItem("itemList", JSON.stringify(itemList));
         setItems();
         setSold();
+        setTotalSales();
+        setTotalSalesPerItem();
       });
 
       // init button
@@ -193,6 +213,39 @@
           newDiv.innerHTML = `${e.name} : ${e.sold}`;
 
           div_sold.appendChild(newDiv);
+        });
+      }
+
+      function setTotalSales() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        let totalSales = 0;
+        itemList.forEach((e) => {
+          totalSales += e.price * e.sold;
+        });
+        div_total_sales.innerHTML = `${totalSales} KRW`;
+      }
+
+      function setTotalSales() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        let totalSales = 0;
+        itemList.forEach((e) => {
+          totalSales += e.price * e.sold;
+        });
+        div_total_sales.innerHTML = `${totalSales} KRW`;
+      }
+
+      function setTotalSalesPerItem() {
+        let itemList = JSON.parse(window.localStorage.getItem("itemList"));
+        if (!itemList) itemList = [];
+        while (div_total_sales_per_item.firstChild) {
+          div_total_sales_per_item.removeChild(div_total_sales_per_item.firstChild);
+        }
+        itemList.forEach((e) => {
+          const newDiv = document.createElement("div");
+          newDiv.innerHTML = `${e.name} : ${(e.price * e.sold)} KRW`;
+          div_total_sales_per_item.appendChild(newDiv);
         });
       }
 
