@@ -1,6 +1,10 @@
 # MiniPOS
 
 ### Open the "pos.html" with browser (chrome recommended)
+
+- open a browser
+- press `cmd + o` or `ctrl + o`
+- select "pos.html"
 ---
 ### You can add item by entering Name and Price
 <img width="354" alt="image" src="https://github.com/natreeum/miniPOS/assets/100063828/53ab3a6b-1695-40b7-9805-7d36eaa210ca">
