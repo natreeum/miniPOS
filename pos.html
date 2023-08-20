@@ -103,7 +103,6 @@
       paidBtn.addEventListener("click", () => {
         const items = document.querySelector("#items");
         const price = document.querySelector("#price");
-        const sold = document.querySelector("#sold");
 
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
         if (!itemList) itemList = [];
@@ -114,12 +113,17 @@
         for (let i of childs) {
           const amount = Number(i.childNodes[1].value);
           const name = i.childNodes[2].innerHTML;
-          saleData[name] = amount;
           if (amount === 0) continue;
-          for (let j of itemList) {
-            if (j.name === name) j.sold += amount;
-          }
+          const itemData = itemList.filter((e) => e.name === name)[0];
+          saleData[name] = {
+            price: itemData.price,
+            count: amount
+          };
+
+          itemData.sold += amount;
         }
+
+        window.localStorage.setItem("itemList", JSON.stringify(itemList));
 
         document.querySelector("#price").innerHTML = `0 KRW`;
 
@@ -128,11 +132,11 @@
         if (
           Object.keys(saleData).length !== 0 &&
           Object.values(saleData).reduce((acc, e) => acc + e, 0) !== 0
-        )
+        ){
           saleLog.push(saleData);
-        window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
+          window.localStorage.setItem("saleLog", JSON.stringify(saleLog));
+        }
 
-        window.localStorage.setItem("itemList", JSON.stringify(itemList));
         setItems();
         setSold();
         setTotalSales();
@@ -146,6 +150,9 @@
         window.localStorage.setItem("saleLog", "[]");
         setItems();
         setSold();
+        setTotalSales();
+        setTotalSalesPerItem();
+        emptyLogList();
       });
 
       // sale Log Button
@@ -156,7 +163,7 @@
         const log = JSON.parse(window.localStorage.getItem("saleLog"));
         log.reverse().forEach((e) => {
           const newLi = document.createElement("li");
-          newLi.innerHTML = JSON.stringify(e);
+          newLi.innerHTML = formatLogEntry(e);
           logUl.appendChild(newLi);
         });
       });
@@ -238,6 +245,24 @@
           div_total_sales_per_item.appendChild(newDiv);
         });
       }
+
+      function formatLogEntry(entry) {
+      let entryString = '';
+      const timeOfSale = new Date().toLocaleString();
+      entryString += `${timeOfSale} | `;
+
+      let totalSalePrice = 0;
+      for (const item in entry) {
+        if (entry[item] !== 0) {
+          const price = entry[item].price * entry[item].count;
+          totalSalePrice += price;
+          entryString += `${item} * ${entry[item].count} (${price} KRW) | `;
+        }
+      }
+
+      entryString += `${totalSalePrice} KRW`;
+      return entryString;
+    }
 
       function emptyLogList() {
         const logUl = document.querySelector("#salelog");
