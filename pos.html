@@ -5,11 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mini POS</title>
     <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        width: 80%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+      }
       .section-title {
-        text-align: center;
-        border-top: 1px solid black;
-        border-bottom: 1px solid black;
+        font-weight: bold;
+        border-bottom: 1px solid #ccc;
+        padding: 5px 0;
+        margin-bottom: 10px;
+      }
+      .item, .sold-item, .total-sale-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #ccc;
+      }
+      #items, #sold, #total_sales_per_item {
+        margin-bottom: 20px;
+      }
+      input[type="text"], input[type="number"] {
         padding: 5px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #salelog {
+        list-style-type: none;
+        padding: 0;
+      }
+      #salelog li {
+        padding: 5px 0;
+        border-bottom: 1px solid #ccc;
       }
     </style>
   </head>
