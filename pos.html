@@ -24,16 +24,21 @@
         padding: 5px 0;
         margin-bottom: 10px;
       }
-      .item, .sold-item, .total-sale-item {
+      .item,
+      .sold-item,
+      .total-sale-item {
         display: flex;
         justify-content: space-between;
         padding: 5px 0;
         border-bottom: 1px solid #ccc;
       }
-      #items, #sold, #total_sales_per_item {
+      #items,
+      #sold,
+      #total_sales_per_item {
         margin-bottom: 20px;
       }
-      input[type="text"], input[type="number"] {
+      input[type="text"],
+      input[type="number"] {
         padding: 5px;
         margin-right: 5px;
         border: 1px solid #ccc;
@@ -87,11 +92,20 @@
     <br />
     <br />
     <button id="init_btn">초기화</button>
+
+    <br />
+    <br />
+    <footer>
+      피드백 & 문의 :
+      <a href="https://github.com/natreeum/miniPOS/discussions">Click here</a>
+    </footer>
     <script>
       const div_items = document.querySelector("#items");
       const div_sold = document.querySelector("#sold");
       const div_total_sales = document.querySelector("#total_sales");
-      const div_total_sales_per_item = document.querySelector("#total_sales_per_item");
+      const div_total_sales_per_item = document.querySelector(
+        "#total_sales_per_item"
+      );
       setItems();
       setSold();
       setTotalSales();
@@ -150,7 +164,7 @@
 
         const saleData = {
           items: {},
-          timestamp: new Date().toLocaleString()
+          timestamp: new Date().toLocaleString(),
         };
 
         const childs = items.childNodes;
@@ -161,7 +175,7 @@
           const itemData = itemList.filter((e) => e.name === name)[0];
           saleData.items[name] = {
             price: itemData.price,
-            count: amount
+            count: amount,
           };
           let updatedItem = itemList.find((e) => e.name === name);
           updatedItem.sold += amount;
@@ -291,17 +305,19 @@
         let itemList = JSON.parse(window.localStorage.getItem("itemList"));
         if (!itemList) itemList = [];
         while (div_total_sales_per_item.firstChild) {
-          div_total_sales_per_item.removeChild(div_total_sales_per_item.firstChild);
+          div_total_sales_per_item.removeChild(
+            div_total_sales_per_item.firstChild
+          );
         }
         itemList.forEach((e) => {
           const newDiv = document.createElement("div");
-          newDiv.innerHTML = `${e.name} : ${(e.price * e.sold)} KRW`;
+          newDiv.innerHTML = `${e.name} : ${e.price * e.sold} KRW`;
           div_total_sales_per_item.appendChild(newDiv);
         });
       }
 
       function formatLogEntry(entry) {
-        let entryString = '';
+        let entryString = "";
         const timeOfSale = entry.timestamp;
         entryString += `${timeOfSale} | `;
 
